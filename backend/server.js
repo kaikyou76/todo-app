@@ -4,16 +4,22 @@ const express = require("express");
 const mongoose = require("mongoose");
 const authRouter = require("./routes/authRouter");
 const todoRouter = require("./routes/todoRouter");
+const cors = require("cors");
 
 //const helmet = require('helmet');
 
 require("dotenv").config();
+
+const corsOptions = {
+  orgin: "http://localhost:3000",
+};
 
 //expressをインスタンス化してあげます
 const app = express();
 const PORT = 8000;
 
 //ミドルウエア
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/api/auth", authRouter);
 app.use("/api/todo", todoRouter);
