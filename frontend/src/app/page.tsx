@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Button,
   Container,
@@ -8,6 +10,10 @@ import {
 } from "@mui/material";
 
 import { Delete, Edit } from "@mui/icons-material";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
+import apiClient from "@/lib/apiClient";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const todos = [
@@ -27,12 +33,45 @@ export default function Home() {
       completed: true,
     },
   ];
+  const { register, handleSubmit } = useForm<TodoInputs>();
+  const [token, setToken] = useState<string>("");
+  const router = useRouter();
+
+  type TodoInputs = {
+    title: string;
+  };
+
+  useEffect(() => {
+    const _token = localStorage.getItem("token");
+    if (!_token) {
+      alert("ログインしていません");
+      router.push("/login");
+    } else {
+      setToken(_token);
+    }
+  }, []);
+
+  const onSubmit: SubmitHandler<TodoInputs> = async (data) => {
+    try {
+      await apiClient.post(
+        "/todo",
+        {
+          title: data.title,
+        },
+        { headers: { Authorization: token } }
+      );
+      alert("Todoを作成しました");
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
   return (
     <div>
       <Container className="flex items-center justify-center h-screen">
         <Stack className="w-full" spacing={2}>
           <h1 className="text-2xl font-bold mb-2">Todo App</h1>
-          <form>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <div className="mb-2">
               <label
                 htmlFor="text"
@@ -43,6 +82,7 @@ export default function Home() {
               <input
                 type="text"
                 className="block w-full rounded-md border-gray-300 focus:border-indigo-500 p-2 mt-1"
+                {...register("title", { required: true })}
               />
             </div>
             <Button variant="contained" color="primary" type="submit" fullWidth>
