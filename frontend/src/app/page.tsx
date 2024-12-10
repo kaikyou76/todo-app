@@ -85,6 +85,18 @@ export default function Home() {
     }
   };
 
+  const handleDeleteTodo = async (todoId: string) => {
+    try {
+      if (window.confirm("本当に削除しますか？")) {
+        await apiClient.delete(`/todo/${todoId}`);
+        alert("削除されました");
+      }
+      getTodos(token);
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
   return (
     <div>
       <Container className="flex items-center justify-center h-screen">
@@ -121,7 +133,7 @@ export default function Home() {
                   <IconButton onClick={() => handleEditTodo(todo._id)}>
                     <Edit />
                   </IconButton>
-                  <IconButton>
+                  <IconButton onClick={() => handleDeleteTodo(todo._id)}>
                     <Delete />
                   </IconButton>
                 </div>
