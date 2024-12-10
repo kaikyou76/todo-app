@@ -70,6 +70,21 @@ export default function Home() {
     }
   };
 
+  const handleEditTodo = async (todoId: string) => {
+    try {
+      const newTitle = prompt("新しいタイトルを入力してください");
+      if (newTitle) {
+        await apiClient.put(`/todo/edit/${todoId}`, {
+          title: newTitle,
+        });
+        alert("更新されました");
+      }
+      getTodos(token); //リロードをかけます。
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
   return (
     <div>
       <Container className="flex items-center justify-center h-screen">
@@ -103,7 +118,7 @@ export default function Home() {
               >
                 <FormControlLabel control={<Checkbox />} label={todo.title} />
                 <div>
-                  <IconButton>
+                  <IconButton onClick={() => handleEditTodo(todo._id)}>
                     <Edit />
                   </IconButton>
                   <IconButton>
