@@ -16,29 +16,20 @@ import apiClient from "@/lib/apiClient";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const todos = [
-    {
-      _id: "1",
-      title: "todo1",
-      completed: false,
-    },
-    {
-      _id: "2",
-      title: "todo2",
-      completed: false,
-    },
-    {
-      _id: "3",
-      title: "todo3",
-      completed: true,
-    },
-  ];
   const { register, handleSubmit } = useForm<TodoInputs>();
   const [token, setToken] = useState<string>("");
+  const [todos, setTodos] = useState<TodoType[]>([]);
   const router = useRouter();
 
   type TodoInputs = {
     title: string;
+  };
+
+  type TodoType = {
+    _id: string;
+    title: string;
+    userId: string;
+    completed: boolean;
   };
 
   useEffect(() => {
@@ -48,6 +39,7 @@ export default function Home() {
       router.push("/login");
     } else {
       setToken(_token);
+      getTodos(_token);
     }
   }, []);
 
@@ -61,6 +53,18 @@ export default function Home() {
         { headers: { Authorization: token } }
       );
       alert("Todoを作成しました");
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+  const getTodos = async (token: string) => {
+    try {
+      const res = await apiClient.get("/todo", {
+        headers: { Authorization: token },
+      });
+      const _todos = res.data;
+      setTodos(_todos);
     } catch (error: any) {
       alert(error.message);
     }
