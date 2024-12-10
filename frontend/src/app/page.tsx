@@ -14,9 +14,11 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
 import apiClient from "@/lib/apiClient";
 import { useEffect, useState } from "react";
+import { useAuth } from "./contexts/authContext";
 
 export default function Home() {
   const { register, handleSubmit } = useForm<TodoInputs>();
+  const { logout } = useAuth();
   const [token, setToken] = useState<string>("");
   const [todos, setTodos] = useState<TodoType[]>([]);
   const router = useRouter();
@@ -97,6 +99,23 @@ export default function Home() {
     }
   };
 
+  const handleCompleteTodo = async (todoId: string) => {
+    try {
+      if (window.confirm("完了しますか？")) {
+        await apiClient.put(`/todo/complete/${todoId}`);
+        alert("完了しました");
+      }
+      getTodos(token);
+    } catch (error: any) {
+      alert(error.message);
+    }
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push("/login");
+  };
+
   return (
     <div>
       <Container className="flex items-center justify-center h-screen">
@@ -128,7 +147,11 @@ export default function Home() {
                 direction="row"
                 key={todo._id}
               >
-                <FormControlLabel control={<Checkbox />} label={todo.title} />
+                <FormControlLabel
+                  control={<Checkbox />}
+                  label={todo.title}
+                  onClick={() => handleCompleteTodo(todo._id)}
+                />
                 <div>
                   <IconButton onClick={() => handleEditTodo(todo._id)}>
                     <Edit />
@@ -139,7 +162,13 @@ export default function Home() {
                 </div>
               </Stack>
             ))}
-          <Button variant="contained" color="error" type="submit" fullWidth>
+          <Button
+            variant="contained"
+            color="error"
+            type="submit"
+            fullWidth
+            onClick={() => handleLogout()}
+          >
             ログアウト
           </Button>
         </Stack>
