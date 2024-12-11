@@ -55,6 +55,7 @@ export default function Home() {
         { headers: { Authorization: token } }
       );
       alert("Todoを作成しました");
+      getTodos(token);
     } catch (error: any) {
       alert(error.message);
     }
